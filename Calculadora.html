@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calculadora Científica</title>
+<style>
+  body {
+    background: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .calculator {
+    background: #333;
+    border-radius: 12px;
+    box-shadow: 0 0 20px #000;
+    width: 350px;
+    padding: 20px;
+    color: white;
+  }
+  .display {
+    background: #000;
+    color: #0f0;
+    font-size: 2rem;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: right;
+    user-select: none;
+    min-height: 50px;
+    overflow-x: auto;
+  }
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+  }
+  button {
+    background: #444;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 1rem;
+    padding: 15px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    user-select: none;
+  }
+  button:hover {
+    background: #666;
+  }
+  button.operator {
+    background: #ff9500;
+    color: white;
+  }
+  button.operator:hover {
+    background: #ffa733;
+  }
+  button.function {
+    background: #555;
+  }
+</style>
+</head>
+<body>
+
+<div class="calculator">
+  <div id="display" class="display">0</div>
+  <div class="buttons">
+    <button class="function" onclick="clearDisplay()">C</button>
+    <button class="function" onclick="backspace()">⌫</button>
+    <button class="function" onclick="toggleSign()">±</button>
+    <button class="function" onclick="percent()">%</button>
+    <button class="operator" onclick="appendOperator('/')">÷</button>
+    <button class="operator" onclick="appendOperator('*')">×</button>
+
+    <button onclick="appendNumber('7')">7</button>
+    <button onclick="appendNumber('8')">8</button>
+    <button onclick="appendNumber('9')">9</button>
+    <button class="operator" onclick="appendOperator('-')">−</button>
+    <button class="function" onclick="applyFunction('sin')">sin</button>
+    <button class="function" onclick="applyFunction('asin')">asin</button>
+
+    <button onclick="appendNumber('4')">4</button>
+    <button onclick="appendNumber('5')">5</button>
+    <button onclick="appendNumber('6')">6</button>
+    <button class="operator" onclick="appendOperator('+')">+</button>
+    <button class="function" onclick="applyFunction('cos')">cos</button>
+    <button class="function" onclick="applyFunction('acos')">acos</button>
+
+    <button onclick="appendNumber('1')">1</button>
+    <button onclick="appendNumber('2')">2</button>
+    <button onclick="appendNumber('3')">3</button>
+    <button class="function" onclick="appendOperator('**')">^</button>
+    <button class="function" onclick="applyFunction('tan')">tan</button>
+    <button class="function" onclick="applyFunction('atan')">atan</button>
+
+    <button onclick="appendNumber('0')" style="grid-column: span 2;">0</button>
+    <button onclick="appendDot()">.</button>
+    <button class="function" onclick="applyFunction('log')">log</button>
+    <button class="function" onclick="applyFunction('ln')">ln</button>
+    <button class="operator" onclick="calculateResult()">=</button>
+  </div>
+</div>
+
+<script>
+  const display = document.getElementById('display');
+
+  function clearDisplay() {
+    display.textContent = '0';
+  }
+
+  function backspace() {
+    if (display.textContent.length > 1) {
+      display.textContent = display.textContent.slice(0, -1);
+    } else {
+      display.textContent = '0';
+    }
+  }
+
+  function appendNumber(num) {
+    if (display.textContent === '0') {
+      display.textContent = num;
+    } else {
+      display.textContent += num;
+    }
+  }
+
+  function appendDot() {
+    if (!display.textContent.includes('.')) {
+      display.textContent += '.';
+    }
+  }
+
+  function appendOperator(op) {
+    const lastChar = display.textContent.slice(-1);
+    if ('+-*/.'.includes(lastChar)) {
+      // Reemplazar el operador si ya hay uno al final
+      display.textContent = display.textContent.slice(0, -1) + op;
+    } else {
+      display.textContent += op;
+    }
+  }
+
+  function toggleSign() {
+    try {
+      let value = eval(display.textContent);
+      value = -value;
+      display.textContent = value.toString();
+    } catch {
+      display.textContent = 'Error';
+    }
+  }
+
+  function percent() {
+    try {
+      let value = eval(display.textContent);
+      value = value / 100;
+      display.textContent = value.toString();
+    } catch {
+      display.textContent = 'Error';
+    }
+  }
+
+  function applyFunction(fn) {
+    try {
+      let val = eval(display.textContent);
+      let result;
+
+      // Convertir grados a radianes para trigonometría
+      const toRad = (deg) => (deg * Math.PI) / 180;
+      const toDeg = (rad) => (rad * 180) / Math.PI;
+
+      switch(fn) {
+        case 'sin':
+          result = Math.sin(toRad(val));
+          break;
+        case 'cos':
+          result = Math.cos(toRad(val));
+          break;
+        case 'tan':
+          result = Math.tan(toRad(val));
+          break;
+        case 'asin':
+          result = toDeg(Math.asin(val));
+          break;
+        case 'acos':
+          result = toDeg(Math.acos(val));
+          break;
+        case 'atan':
+          result = toDeg(Math.atan(val));
+          break;
+        case 'log':
+          result = Math.log10(val);
+          break;
+        case 'ln':
+          result = Math.log(val);
+          break;
+        default:
+          result = val;
+      }
+      display.textContent = result.toString();
+    } catch {
+      display.textContent = 'Error';
+    }
+  }
+
+  function calculateResult() {
+    try {
+      let expression = display.textContent;
+
+      // Reemplazar símbolos visibles por operadores JS
+      expression = expression.replace(/÷/g, '/').replace(/×/g, '*');
+
+      let result = eval(expression);
+
+      if (result === Infinity || result === -Infinity) {
+        display.textContent = 'Error';
+      } else {
+        display.textContent = result.toString();
+      }
+    } catch {
+      display.textContent = 'Error';
+    }
+  }
+</script>
+
+</body>
+</html>
